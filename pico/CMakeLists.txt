@@ -41,6 +41,7 @@ add_executable(divisor)
 
 set(PROJECT_SOURCES
     src/main.c
+    src/gamepad/gamepad.c
     src/usb/usb_descriptors.c
 )
 
@@ -52,6 +53,7 @@ target_sources(divisor PUBLIC
 target_include_directories(divisor PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}
         ${CMAKE_CURRENT_LIST_DIR}/src
+        ${CMAKE_CURRENT_LIST_DIR}/src/gamepad
         ${CMAKE_CURRENT_LIST_DIR}/src/usb
         )
 
