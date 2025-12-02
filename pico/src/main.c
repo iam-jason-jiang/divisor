@@ -34,9 +34,11 @@
 
 #include "gamepad.h"
 
+
 /*------------- MAIN -------------*/
 int main(void) {
   board_init();
+  pico_led_init();
 
   // init device stack on configured roothub port
   tud_init(BOARD_TUD_RHPORT);

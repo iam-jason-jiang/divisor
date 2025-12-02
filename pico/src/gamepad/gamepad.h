@@ -5,6 +5,7 @@
 #include <stdbool.h>
 
 void led_blinking_task(void);
+int pico_led_init(void);
 void hid_task(void);
 
 // Required TinyUSB callbacks
