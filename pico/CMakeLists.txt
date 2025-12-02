@@ -43,6 +43,7 @@ set(PROJECT_SOURCES
     src/main.c
     src/gamepad/gamepad.c
     src/usb/usb_descriptors.c
+    src/led/led.c
 )
 
 target_sources(divisor PUBLIC
@@ -55,6 +56,7 @@ target_include_directories(divisor PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/src
         ${CMAKE_CURRENT_LIST_DIR}/src/gamepad
         ${CMAKE_CURRENT_LIST_DIR}/src/usb
+        ${CMAKE_CURRENT_LIST_DIR}/src/led
         )
 
 # In addition to pico_stdlib required for common PicoSDK functionality, add dependency on tinyusb_device
