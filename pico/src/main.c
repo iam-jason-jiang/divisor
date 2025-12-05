@@ -31,25 +31,26 @@
 #include "tusb.h"
 #include "usb_descriptors.h"
 
+#include "usb_callbacks.h"
 #include "gamepad.h"
 #include "led.h"
 
 /*------------- MAIN -------------*/
 int main(void) {
-  board_init();
-  pico_led_init();
+    board_init();
+    pico_led_init();
 
-  // init device stack on configured roothub port
-  tud_init(BOARD_TUD_RHPORT);
+    // init device stack on configured roothub port
+    tud_init(BOARD_TUD_RHPORT);
 
-  if (board_init_after_tusb) {
-    board_init_after_tusb();
-  }
+    if (board_init_after_tusb) {
+        board_init_after_tusb();
+    }
 
-  while (1) {
-    tud_task(); // tinyusb device task
-    led_blinking_task();
+    while (1) {
+        tud_task(); // tinyusb device task
+        led_blinking_task();
 
-    hid_task();
-  }
+        hid_task();
+    }
 }
