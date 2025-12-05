@@ -43,6 +43,7 @@ set(PROJECT_SOURCES
     src/main.c
     src/gamepad/gamepad.c
     src/usb/usb_descriptors.c
+    src/usb/usb_callbacks.c
     src/led/led.c
 )
 
