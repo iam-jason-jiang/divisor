@@ -13,12 +13,19 @@
 // USB HID
 //--------------------------------------------------------------------+
 
+/*
+GAMEPAD_BUTTON_12 DPAD_UP
+GAMEPAD_BUTTON_13 DPAD_DOWN
+GAMEPAD_BUTTON_14 DPAD_LEFT
+GAMEPAD_BUTTON_15 DPAD_RIGHT
+*/
+
 static void send_hid_report(uint32_t btn) {
   // skip if hid is not ready yet
   if (!tud_hid_ready())
     return;
 
-  // use to avoid send multiple consecutive zero report for keyboard
+  // use to avoid send multiple consecutive zero reports
   static bool has_gamepad_key = false;
 
   hid_gamepad_report_t report = {.x = 0,
@@ -31,14 +38,12 @@ static void send_hid_report(uint32_t btn) {
                                  .buttons = 0};
 
   if (btn) {
-    report.hat = GAMEPAD_HAT_UP;
-    report.buttons = GAMEPAD_BUTTON_A;
+    report.hat = GAMEPAD_HAT_DOWN;
+    report.buttons |= GAMEPAD_BUTTON_13;
+    report.buttons |= GAMEPAD_BUTTON_A;
     tud_hid_report(REPORT_ID_GAMEPAD, &report, sizeof(report));
-
     has_gamepad_key = true;
   } else {
-    report.hat = GAMEPAD_HAT_CENTERED;
-    report.buttons = 0;
     if (has_gamepad_key)
       tud_hid_report(REPORT_ID_GAMEPAD, &report, sizeof(report));
     has_gamepad_key = false;
