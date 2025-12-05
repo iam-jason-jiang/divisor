@@ -25,6 +25,8 @@
 #ifndef USB_DESCRIPTORS_H_
 #define USB_DESCRIPTORS_H_
 
+static const int input_mode = 1;
+
 enum
 {
   REPORT_ID_GAMEPAD,

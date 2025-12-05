@@ -40,7 +40,7 @@
 //--------------------------------------------------------------------+
 // Device Descriptors
 //--------------------------------------------------------------------+
-tusb_desc_device_t const desc_device =
+tusb_desc_device_t const desc_device_dinput =
 {
     .bLength            = sizeof(tusb_desc_device_t),
     .bDescriptorType    = TUSB_DESC_DEVICE,
@@ -61,11 +61,39 @@ tusb_desc_device_t const desc_device =
     .bNumConfigurations = 0x01
 };
 
+tusb_desc_device_t const desc_device_xinput =
+{
+    .bLength = sizeof(tusb_desc_device_t),
+    .bDescriptorType = TUSB_DESC_DEVICE,
+    .bcdUSB = 0x0200,
+    .bDeviceClass = 0xFF,
+    .bDeviceSubClass = 0xFF,
+    .bDeviceProtocol = 0xFF,
+    .bMaxPacketSize0 = CFG_TUD_ENDPOINT0_SIZE,
+
+    .idVendor = 0x045E,
+    .idProduct = 0x028E,
+    .bcdDevice = 0x0572,
+
+    .iManufacturer = 0x01,
+    .iProduct = 0x02,
+    .iSerialNumber = 0x03,
+
+    .bNumConfigurations = 0x01
+};
+
 // Invoked when received GET DEVICE DESCRIPTOR
 // Application return pointer to descriptor
 uint8_t const * tud_descriptor_device_cb(void)
 {
-    return (uint8_t const *) &desc_device;
+    // return (uint8_t const *) &desc_device;
+    if (input_mode == 1) {
+        // You must define this struct using XInput VID/PID
+        return (uint8_t const *) &desc_device_xinput;
+    } else {
+        // Your original DInput descriptor (renamed)
+        return (uint8_t const *) &desc_device_dinput;
+    }
 }
 
 //--------------------------------------------------------------------+
@@ -97,10 +125,11 @@ enum
 };
 
 #define  CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_HID_DESC_LEN)
+#define CONFIG_TOTAL_LEN_MAX       48
 
 #define EPNUM_HID   0x81
 
-uint8_t const desc_configuration[] =
+uint8_t const desc_configuration_dinput[] =
 {
     // Config number, interface count, string index, total length, attribute, power in mA
     TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 100),
@@ -109,11 +138,69 @@ uint8_t const desc_configuration[] =
     TUD_HID_DESCRIPTOR(ITF_NUM_HID, 0, HID_ITF_PROTOCOL_NONE, sizeof(desc_hid_report), EPNUM_HID, CFG_TUD_HID_EP_BUFSIZE, 5)
 };
 
+const uint8_t desc_configuration_xinput[] = {
+//Configuration Descriptor:
+0x09,	//bLength
+0x02,	//bDescriptorType
+0x30,0x00, 	//wTotalLength   (48 bytes)
+0x01,	//bNumInterfaces
+0x01,	//bConfigurationValue
+0x00,	//iConfiguration
+0x80,	//bmAttributes   (Bus-powered Device)
+0xFA,	//bMaxPower      (500 mA)
+
+//Interface Descriptor:
+0x09,	//bLength
+0x04,	//bDescriptorType
+0x00,	//bInterfaceNumber
+0x00,	//bAlternateSetting
+0x02,	//bNumEndPoints
+0xFF,	//bInterfaceClass      (Vendor specific)
+0x5D,	//bInterfaceSubClass
+0x01,	//bInterfaceProtocol
+0x00,	//iInterface
+
+//Unknown Descriptor:
+0x10,
+0x21,
+0x10,
+0x01,
+0x01,
+0x24,
+0x81,
+0x14,
+0x03,
+0x00,
+0x03,
+0x13,
+0x02,
+0x00,
+0x03,
+0x00,
+
+//Endpoint Descriptor:
+0x07,	//bLength
+0x05,	//bDescriptorType
+0x81,	//bEndpointAddress  (IN endpoint 1)
+0x03,	//bmAttributes      (Transfer: Interrupt / Synch: None / Usage: Data)
+0x20,0x00, 	//wMaxPacketSize    (1 x 32 bytes)
+0x04,	//bInterval         (4 frames)
+
+//Endpoint Descriptor:
+
+0x07,	//bLength
+0x05,	//bDescriptorType
+0x02,	//bEndpointAddress  (OUT endpoint 2)
+0x03,	//bmAttributes      (Transfer: Interrupt / Synch: None / Usage: Data)
+0x20,0x00, 	//wMaxPacketSize    (1 x 32 bytes)
+0x08,	//bInterval         (8 frames)
+};
+
 #if TUD_OPT_HIGH_SPEED
 // Per USB specs: high speed capable device must report device_qualifier and other_speed_configuration
 
 // other speed configuration
-uint8_t desc_other_speed_config[CONFIG_TOTAL_LEN];
+uint8_t desc_other_speed_config[CONFIG_TOTAL_LEN_MAX];
 
 // device qualifier is mostly similar to device descriptor since we don't change configuration based on speed
 tusb_desc_device_qualifier_t const desc_device_qualifier =
@@ -147,11 +234,13 @@ uint8_t const* tud_descriptor_other_speed_configuration_cb(uint8_t index)
 {
     (void) index; // for multiple configurations
 
-    // other speed config is basically configuration with type = OHER_SPEED_CONFIG
-    memcpy(desc_other_speed_config, desc_configuration, CONFIG_TOTAL_LEN);
-    desc_other_speed_config[1] = TUSB_DESC_OTHER_SPEED_CONFIG;
+    if (input_mode == 1) {
+        memcpy(desc_other_speed_config, desc_configuration_xinput, CONFIG_TOTAL_LEN_MAX);
+    } else {
+        memcpy(desc_other_speed_config, desc_configuration_dinput, CONFIG_TOTAL_LEN_MAX);
+    }
 
-    // this example use the same configuration for both high and full speed mode
+    desc_other_speed_config[1] = TUSB_DESC_OTHER_SPEED_CONFIG;
     return desc_other_speed_config;
 }
 
@@ -164,8 +253,11 @@ uint8_t const * tud_descriptor_configuration_cb(uint8_t index)
 {
     (void) index; // for multiple configurations
 
-    // This example use the same configuration for both high and full speed mode
-    return desc_configuration;
+    if (input_mode == 1) {
+        return desc_configuration_xinput;
+    } else {
+        return desc_configuration_dinput;
+    }
 }
 
 //--------------------------------------------------------------------+
