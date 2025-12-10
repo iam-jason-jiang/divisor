@@ -27,10 +27,6 @@
 
 static const int input_mode = 1;
 
-enum
-{
-  REPORT_ID_GAMEPAD,
-  REPORT_ID_COUNT
-};
+enum { REPORT_ID_GAMEPAD, REPORT_ID_COUNT };
 
 #endif /* USB_DESCRIPTORS_H_ */

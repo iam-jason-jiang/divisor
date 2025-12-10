@@ -3,4 +3,4 @@
 
 void hid_task(void);
 
-#endif // GAMEPAD_H
+#endif  // GAMEPAD_H

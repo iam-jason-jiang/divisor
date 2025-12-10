@@ -28,12 +28,11 @@
 #include <string.h>
 
 #include "bsp/board_api.h"
-#include "tusb.h"
-#include "usb_descriptors.h"
-
-#include "usb_callbacks.h"
 #include "gamepad.h"
 #include "led.h"
+#include "tusb.h"
+#include "usb_callbacks.h"
+#include "usb_descriptors.h"
 
 /*------------- MAIN -------------*/
 int main(void) {
@@ -48,7 +47,7 @@ int main(void) {
     }
 
     while (1) {
-        tud_task(); // tinyusb device task
+        tud_task();  // tinyusb device task
         led_blinking_task();
 
         hid_task();

@@ -9,9 +9,9 @@
  * - 2500 ms : device is suspended
  */
 enum {
-  BLINK_NOT_MOUNTED = 250,
-  BLINK_MOUNTED = 1000,
-  BLINK_SUSPENDED = 2500,
+    BLINK_NOT_MOUNTED = 250,
+    BLINK_MOUNTED = 1000,
+    BLINK_SUSPENDED = 2500,
 };
 
 static uint32_t blink_interval_ms = BLINK_NOT_MOUNTED;
@@ -19,4 +19,4 @@ static uint32_t blink_interval_ms = BLINK_NOT_MOUNTED;
 int pico_led_init(void);
 void led_blinking_task(void);
 
-#endif // LED_H
+#endif  // LED_H
