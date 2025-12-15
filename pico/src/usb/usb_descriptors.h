@@ -32,5 +32,6 @@ enum { D_INPUT, X_INPUT };
 enum { REPORT_ID_GAMEPAD, REPORT_ID_COUNT };
 
 void send_hid_report(int btn);
+void send_xinput_report(int btn);
 
 #endif /* USB_DESCRIPTORS_H_ */
