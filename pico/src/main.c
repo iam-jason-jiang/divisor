@@ -38,10 +38,29 @@
 // set default input mode to XInput
 int input_mode = X_INPUT;
 
-/*------------- MAIN -------------*/
+controller_state_t controller_state = {0};
+
+void update_left(void) {
+    poll_left_inputs(&controller_state);
+
+    // TODO: send data to right side UART
+}
+
+void update_right(void) {
+    tud_task();
+    led_blinking_task();
+
+    poll_right_inputs(&controller_state);
+
+    usb_task(&controller_state);
+}
+
 int main(void) {
     board_init();
     pico_led_init();
+
+    const uint32_t LOCK_TIMEOUT_MS = 500;
+    uint32_t start_time = to_ms_since_boot(get_absolute_time());
 
     // init device stack on configured roothub port
     tud_init(BOARD_TUD_RHPORT);
@@ -50,19 +69,17 @@ int main(void) {
         board_init_after_tusb();
     }
 
-    controller_state_t controller_state = {0};
-    controller_state.left_stick_x = 2048;
-    controller_state.left_stick_y = 2048;
-    controller_state.right_stick_x = 2048;
-    controller_state.right_stick_y = 2048;
+    void (*update_task)(void) = update_left;
+    // wait for usb device
+    while (to_ms_since_boot(get_absolute_time()) - start_time < LOCK_TIMEOUT_MS) {
+        tud_task(); 
+        if (tud_ready()) {
+            update_task = update_right;
+            break;
+        }
+    }
 
     while (1) {
-        tud_task();  // tinyusb device task
-        led_blinking_task();
-
-        poll_left_inputs(&controller_state);
-        // poll_right_inputs(&controller_state);
-
-        usb_task(&controller_state);
+        update_task();
     }
 }
