@@ -28,7 +28,7 @@ set(PICO_BOARD pico_w CACHE STRING "Board type")
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
 
-project(dev_hid_composite C CXX ASM)
+project(divisor C CXX ASM)
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
@@ -37,24 +37,47 @@ pico_sdk_init()
 
 cmake_minimum_required(VERSION 3.13)
 
-add_executable(dev_hid_composite)
+add_executable(divisor)
 
-target_sources(dev_hid_composite PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR}/main.c
-        ${CMAKE_CURRENT_LIST_DIR}/usb_descriptors.c
+set(PROJECT_SOURCES
+    src/main.c
+    src/gamepad/gamepad.c
+    src/usb/usb_descriptors.c
+    src/usb/usb_callbacks.c
+    src/led/led.c
+    src/usb/dinput.c
+    src/usb/xinput.c
+)
+
+target_sources(divisor PUBLIC
+        ${PROJECT_SOURCES}
         )
 
 # Make sure TinyUSB can find tusb_config.h
-target_include_directories(dev_hid_composite PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(divisor PUBLIC
+        ${CMAKE_CURRENT_LIST_DIR}
+        ${CMAKE_CURRENT_LIST_DIR}/src
+        ${CMAKE_CURRENT_LIST_DIR}/src/gamepad
+        ${CMAKE_CURRENT_LIST_DIR}/src/usb
+        ${CMAKE_CURRENT_LIST_DIR}/src/led
+        )
 
 # In addition to pico_stdlib required for common PicoSDK functionality, add dependency on tinyusb_device
 # for TinyUSB device support and tinyusb_board for the additional board support library used by the example
-target_link_libraries(dev_hid_composite PUBLIC pico_stdlib pico_unique_id tinyusb_device tinyusb_board)
+target_link_libraries(divisor PUBLIC
+    pico_stdlib
+    pico_unique_id
+    tinyusb_device
+    tinyusb_board
+)
+
+if (PICO_CYW43_SUPPORTED)
+    target_link_libraries(divisor PUBLIC pico_cyw43_arch_none)
+endif()
 
 # Uncomment this line to enable fix for Errata RP2040-E5 (the fix requires use of GPIO 15)
-#target_compile_definitions(dev_hid_composite PUBLIC PICO_RP2040_USB_DEVICE_ENUMERATION_FIX=1)
+#target_compile_definitions(divisor PUBLIC PICO_RP2040_USB_DEVICE_ENUMERATION_FIX=1)
 
-pico_add_extra_outputs(dev_hid_composite)
+pico_add_extra_outputs(divisor)
 
 # add url via pico_set_program_url
