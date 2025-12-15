@@ -7,9 +7,6 @@
 #include "usb_descriptors.h"
 
 void send_hid_report(int btn) {
-    // use to avoid send multiple consecutive zero reports
-    static bool has_gamepad_key = false;
-
     hid_gamepad_report_t report = {.x = 0,
                                    .y = 0,
                                    .z = 0,
@@ -21,13 +18,9 @@ void send_hid_report(int btn) {
 
     if (btn) {
         report.buttons |= GAMEPAD_BUTTON_A;
-        tud_hid_report(REPORT_ID_GAMEPAD, &report, sizeof(report));
-        has_gamepad_key = true;
-    } else {
-        if (has_gamepad_key)
-            tud_hid_report(REPORT_ID_GAMEPAD, &report, sizeof(report));
-        has_gamepad_key = false;
     }
+
+    tud_hid_report(REPORT_ID_GAMEPAD, &report, sizeof(report));
 }
 
 // callback functions

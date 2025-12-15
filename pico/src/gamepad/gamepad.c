@@ -1,3 +1,5 @@
+#include "gamepad.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,11 +10,18 @@
 #include "tusb.h"
 #include "usb_callbacks.h"
 #include "usb_descriptors.h"
-#include "gamepad.h"
 
+static bool active_input_in_last_cycle = false;
 
+static bool is_any_input_active(controller_state_t const *state) {
+    return (state->button1 || state->button2 || state->button3 ||
+            state->button4 || state->button5 || state->button6 ||
+            state->button7 || state->button8 || state->axis_1x != 0.0f ||
+            state->axis_1y != 0.0f || state->axis_2x != 0.0f ||
+            state->axis_2y != 0.0f);
+}
 
-void usb_task(controller_state_t *controler_state) {
+void usb_task(controller_state_t *controller_state) {
     // Poll every 10ms
     const uint32_t interval_ms = 10;
     static uint32_t start_ms = 0;
@@ -20,10 +29,15 @@ void usb_task(controller_state_t *controler_state) {
     if (board_millis() - start_ms < interval_ms) return;  // not enough time
     start_ms += interval_ms;
 
-    uint32_t const btn = board_button_read();
+    bool input_is_active = is_any_input_active(controller_state);
+
+    // avoid sending multiple consecutive zero reports
+    if (!input_is_active && !active_input_in_last_cycle) {
+        return;
+    }
 
     // remote wakeup
-    if (tud_suspended() && btn) {
+    if (tud_suspended() && input_is_active) {
         tud_remote_wakeup();
     }
 
@@ -34,11 +48,14 @@ void usb_task(controller_state_t *controler_state) {
 
     switch (input_mode) {
         case D_INPUT:
-            send_hid_report(btn);
+            send_hid_report(controller_state->button1);
             break;
         default:
         case X_INPUT:
-            send_xinput_report(btn);
+            send_xinput_report(controller_state->button1);
             break;
     }
+
+    // Update the state for the next cycle
+    active_input_in_last_cycle = input_is_active;
 }

@@ -4,11 +4,11 @@
 
 #include "bsp/board_api.h"
 #include "device/usbd_pvt.h"
+#include "gamepad.h"
 #include "led.h"
 #include "tusb.h"
 #include "usb_callbacks.h"
 #include "usb_descriptors.h"
-#include "gamepad.h"
 
 typedef struct {
     uint8_t rid;
@@ -41,8 +41,6 @@ static void xinput_send(xinput_report_t const *report) {
 }
 
 void send_xinput_report(int btn) {
-    static bool has_gamepad_key = false;
-
     xinput_report_t report = {.rid = 0,
                               .rsize = 20,
                               .digital_buttons_1 = 0,
@@ -57,16 +55,10 @@ void send_xinput_report(int btn) {
 
     if (btn) {
         report.digital_buttons_2 |= 0x10;  // A button
-        
-        xinput_send(&report);
-
-        has_gamepad_key = true;
-    } else {
-        if (has_gamepad_key) xinput_send(&report);
-        has_gamepad_key = false;
     }
-}
 
+    xinput_send(&report);
+}
 
 // callback functions
 

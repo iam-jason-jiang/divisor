@@ -35,7 +35,7 @@
 #include "usb_descriptors.h"
 
 // set default input mode to XInput
-int input_mode = X_INPUT;
+int input_mode = D_INPUT;
 
 /*------------- MAIN -------------*/
 int main(void) {
@@ -54,6 +54,9 @@ int main(void) {
     while (1) {
         tud_task();  // tinyusb device task
         led_blinking_task();
+
+        uint32_t const btn = board_button_read();
+        controller_state.button1 = (btn) ? 1 : 0;
 
         usb_task(&controller_state);
     }
