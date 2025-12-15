@@ -11,21 +11,22 @@
 #endif
 
 int pico_led_init(void) {
-#if defined(PICO_DEFAULT_LED_PIN)
+#if PICO_CYW43_SUPPORT
+    if (cyw43_arch_init() != PICO_OK) {
+        return PICO_ERROR_GENERIC;
+    }
+#elif defined(PICO_DEFAULT_LED_PIN)
     gpio_init(PICO_DEFAULT_LED_PIN);
     gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
-    return PICO_OK;
-#elif defined(CYW43_WL_GPIO_LED_PIN)
-    return cyw43_arch_init();
 #endif
     return PICO_OK;
 }
 
 void pico_set_led(bool led_on) {
-#if defined(PICO_DEFAULT_LED_PIN)
-    gpio_put(PICO_DEFAULT_LED_PIN, led_on);
-#elif defined(CYW43_WL_GPIO_LED_PIN)
+#if PICO_CYW43_SUPPORT
     cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, led_on);
+#elif defined(PICO_DEFAULT_LED_PIN)
+    gpio_put(PICO_DEFAULT_LED_PIN, led_on);
 #endif
 }
 
