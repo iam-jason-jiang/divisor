@@ -1,22 +1,26 @@
 #ifndef GAMEPAD_H
 #define GAMEPAD_H
 
+#include <stdint.h>
+#include <stdbool.h>
+
 typedef struct {
-    int button1;
-    int button2;
-    int button3;
-    int button4;
+    bool button1;
+    bool button2;
+    bool button3;
+    bool button4;
 
-    int button5;
-    int button6;
-    int button7;
-    int button8;
+    bool button5;
+    bool button6;
+    bool button7;
+    bool button8;
     
-    float left_stick_x;
-    float left_stick_y;
+    // 12-bit precision
+    uint16_t left_stick_x;
+    uint16_t left_stick_y;
 
-    float right_stick_x;
-    float right_stick_y;
+    uint16_t right_stick_x;
+    uint16_t right_stick_y;
 } controller_state_t;
 
 void usb_task(controller_state_t *controller_state);

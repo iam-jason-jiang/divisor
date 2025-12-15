@@ -25,13 +25,15 @@
 #ifndef USB_DESCRIPTORS_H_
 #define USB_DESCRIPTORS_H_
 
+#include "gamepad.h"
+
 extern int input_mode;
 
 enum { D_INPUT, X_INPUT };
 
 enum { REPORT_ID_GAMEPAD, REPORT_ID_COUNT };
 
-void send_hid_report(int btn);
-void send_xinput_report(int btn);
+void send_hid_report(controller_state_t const *state);
+void send_xinput_report(controller_state_t const *state);
 
 #endif /* USB_DESCRIPTORS_H_ */

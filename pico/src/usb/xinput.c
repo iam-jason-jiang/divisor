@@ -40,22 +40,25 @@ static void xinput_send(xinput_report_t const *report) {
     }
 }
 
-void send_xinput_report(int btn) {
-    xinput_report_t report = {.rid = 0,
-                              .rsize = 20,
-                              .digital_buttons_1 = 0,
-                              .digital_buttons_2 = 0,
-                              .lt = 0,
-                              .rt = 0,
-                              .l_x = 0,
-                              .l_y = 0,
-                              .r_x = 0,
-                              .r_y = 0,
-                              .reserved_1 = {0}};
-
-    if (btn) {
-        report.digital_buttons_2 |= 0x10;  // A button
-    }
+void send_xinput_report(controller_state_t const *state) {
+    xinput_report_t report = {
+        .rid = 0,
+        .rsize = 20,
+        .digital_buttons_1 = (state->button5 ? 0x01 : 0) |  //
+                             (state->button6 ? 0x02 : 0) |  //
+                             (state->button7 ? 0x04 : 0) |  //
+                             (state->button8 ? 0x08 : 0),   //
+        .digital_buttons_2 = (state->button1 ? 0x10 : 0) |  // A
+                             (state->button2 ? 0x20 : 0) |  // B
+                             (state->button3 ? 0x40 : 0) |  // X
+                             (state->button4 ? 0x80 : 0),   // Y
+        .lt = 0,
+        .rt = 0,
+        .l_x = state->left_stick_x << 4,
+        .l_y = state->left_stick_y << 4,
+        .r_x = state->right_stick_x << 4,
+        .r_y = state->right_stick_y << 4,
+        .reserved_1 = {0}};
 
     xinput_send(&report);
 }

@@ -62,11 +62,11 @@ void usb_task(controller_state_t *controller_state) {
 
     switch (input_mode) {
         case D_INPUT:
-            send_hid_report(controller_state->button1);
+            send_hid_report(controller_state);
             break;
         default:
         case X_INPUT:
-            send_xinput_report(controller_state->button1);
+            send_xinput_report(controller_state);
             break;
     }
 
