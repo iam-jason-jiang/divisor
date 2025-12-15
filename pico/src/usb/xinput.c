@@ -44,7 +44,7 @@ void send_xinput_report(int btn) {
     static bool has_gamepad_key = false;
 
     xinput_report_t report = {.rid = 0,
-                              .rsize = 0,
+                              .rsize = 20,
                               .digital_buttons_1 = 0,
                               .digital_buttons_2 = 0,
                               .lt = 0,
@@ -54,10 +54,10 @@ void send_xinput_report(int btn) {
                               .r_x = 0,
                               .r_y = 0,
                               .reserved_1 = {0}};
-    report.rsize = 20;
 
     if (btn) {
         report.digital_buttons_2 |= 0x10;  // A button
+        
         xinput_send(&report);
 
         has_gamepad_key = true;
