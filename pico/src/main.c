@@ -35,7 +35,7 @@
 #include "usb_descriptors.h"
 
 // set default input mode to XInput
-int input_mode = D_INPUT;
+int input_mode = X_INPUT;
 
 /*------------- MAIN -------------*/
 int main(void) {

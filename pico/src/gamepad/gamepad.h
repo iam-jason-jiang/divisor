@@ -12,11 +12,11 @@ typedef struct {
     int button7;
     int button8;
     
-    float axis_1x;
-    float axis_1y;
+    float left_stick_x;
+    float left_stick_y;
 
-    float axis_2x;
-    float axis_2y;
+    float right_stick_x;
+    float right_stick_y;
 } controller_state_t;
 
 void usb_task(controller_state_t *controller_state);

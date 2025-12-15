@@ -13,12 +13,26 @@
 
 static bool active_input_in_last_cycle = false;
 
+// TODO: EXPERIMENTAL VALUE
+#define ANALOG_DEAD_ZONE 200
+
 static bool is_any_input_active(controller_state_t const *state) {
+    if (abs(state->left_stick_x) > ANALOG_DEAD_ZONE) {
+        return true;
+    }
+    if (abs(state->left_stick_y) > ANALOG_DEAD_ZONE) {
+        return true;
+    }
+    if (abs(state->right_stick_x) > ANALOG_DEAD_ZONE) {
+        return true;
+    }
+    if (abs(state->right_stick_y) > ANALOG_DEAD_ZONE) {
+        return true;
+    }
+
     return (state->button1 || state->button2 || state->button3 ||
             state->button4 || state->button5 || state->button6 ||
-            state->button7 || state->button8 || state->axis_1x != 0.0f ||
-            state->axis_1y != 0.0f || state->axis_2x != 0.0f ||
-            state->axis_2y != 0.0f);
+            state->button7 || state->button8);
 }
 
 void usb_task(controller_state_t *controller_state) {
