@@ -22,7 +22,7 @@ typedef struct {
     int16_t r_x;
     int16_t r_y;
     uint8_t reserved_1[6];
-} xinput_report_t;
+} __attribute__((packed)) xinput_report_t;
 
 uint8_t endpoint_in = 0;
 uint8_t endpoint_out = 0;
@@ -54,10 +54,10 @@ void send_xinput_report(controller_state_t const *state) {
                              (state->button4 ? 0x80 : 0),   // Y
         .lt = 0,
         .rt = 0,
-        .l_x = state->left_stick_x << 4,
-        .l_y = state->left_stick_y << 4,
-        .r_x = state->right_stick_x << 4,
-        .r_y = state->right_stick_y << 4,
+        .l_x = ((int16_t) state->left_stick_x - 2048) * 16,
+        .l_y = ((int16_t) state->left_stick_y - 2048) * 16,
+        .r_x = ((int16_t) state->right_stick_x - 2048) * 16,
+        .r_y = ((int16_t) state->right_stick_y - 2048) * 16,
         .reserved_1 = {0}};
 
     xinput_send(&report);

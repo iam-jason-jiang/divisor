@@ -4,7 +4,11 @@
 #include <stdint.h>
 
 #include "bsp/board_api.h"
+#include "pico/stdlib.h"
+
+#if PICO_CYW43_SUPPORT
 #include "pico/cyw43_arch.h"
+#endif
 
 int pico_led_init(void) {
 #if defined(PICO_DEFAULT_LED_PIN)

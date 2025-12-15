@@ -50,6 +50,10 @@ int main(void) {
     }
 
     controller_state_t controller_state = {0};
+    controller_state.left_stick_x = 2048;
+    controller_state.left_stick_y = 2048;
+    controller_state.right_stick_x = 2048;
+    controller_state.right_stick_y = 2048;
 
     while (1) {
         tud_task();  // tinyusb device task
@@ -57,6 +61,7 @@ int main(void) {
 
         uint32_t const btn = board_button_read();
         controller_state.button1 = (btn) ? 1 : 0;
+        controller_state.left_stick_x = (btn) ? 4095 : 2048;
 
         usb_task(&controller_state);
     }
