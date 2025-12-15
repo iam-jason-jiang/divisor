@@ -33,6 +33,7 @@
 #include "tusb.h"
 #include "usb_callbacks.h"
 #include "usb_descriptors.h"
+#include "input_polling.h"
 
 // set default input mode to XInput
 int input_mode = X_INPUT;
@@ -59,9 +60,8 @@ int main(void) {
         tud_task();  // tinyusb device task
         led_blinking_task();
 
-        uint32_t const btn = board_button_read();
-        controller_state.button1 = (btn) ? 1 : 0;
-        controller_state.left_stick_x = (btn) ? 4095 : 2048;
+        poll_left_inputs(&controller_state);
+        // poll_right_inputs(&controller_state);
 
         usb_task(&controller_state);
     }
