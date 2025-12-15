@@ -8,46 +8,7 @@
 #include "tusb.h"
 #include "usb_callbacks.h"
 #include "usb_descriptors.h"
-
-//--------------------------------------------------------------------+
-// USB HID
-//--------------------------------------------------------------------+
-
-/*
-   GAMEPAD_BUTTON_12 DPAD_UP
-   GAMEPAD_BUTTON_13 DPAD_DOWN
-   GAMEPAD_BUTTON_14 DPAD_LEFT
-   GAMEPAD_BUTTON_15 DPAD_RIGHT
-   */
-
-static void send_hid_report(uint32_t btn) {
-    // skip if hid is not ready yet
-    if (!tud_hid_ready()) return;
-
-    // use to avoid send multiple consecutive zero reports
-    static bool has_gamepad_key = false;
-
-    hid_gamepad_report_t report = {.x = 0,
-                                   .y = 0,
-                                   .z = 0,
-                                   .rz = 0,
-                                   .rx = 0,
-                                   .ry = 0,
-                                   .hat = 0,
-                                   .buttons = 0};
-
-    if (btn) {
-        report.hat = GAMEPAD_HAT_DOWN;
-        report.buttons |= GAMEPAD_BUTTON_13;
-        report.buttons |= GAMEPAD_BUTTON_A;
-        tud_hid_report(REPORT_ID_GAMEPAD, &report, sizeof(report));
-        has_gamepad_key = true;
-    } else {
-        if (has_gamepad_key)
-            tud_hid_report(REPORT_ID_GAMEPAD, &report, sizeof(report));
-        has_gamepad_key = false;
-    }
-}
+#include "gamepad.h"
 
 typedef struct {
     uint8_t rid;
@@ -69,15 +30,8 @@ static volatile bool is_xinput_xfer_busy = false;
 
 static void xinput_send(xinput_report_t const *report) {
     if (endpoint_in != 0) {
-        // We must ensure the endpoint is free before transferring.
-        if (usbd_edpt_claim(
-                0,
-                endpoint_in)) {  // <-- Checks if endpoint is free AND claims it
-            // Start transfer
+        if (usbd_edpt_claim(0, endpoint_in)) {
             if (usbd_edpt_xfer(0, endpoint_in, (uint8_t *)report, 20)) {
-                // Transfer successfully started. Now, the xinput_xfer_cb will
-                // be called on completion. We keep the endpoint claimed until
-                // the transfer finishes.
                 is_xinput_xfer_busy = true;
             } else {
                 usbd_edpt_release(0, endpoint_in);
@@ -87,8 +41,6 @@ static void xinput_send(xinput_report_t const *report) {
 }
 
 static void send_xinput_report(uint32_t btn) {
-    if (!tud_ready()) return;
-
     static bool has_gamepad_key = false;
 
     xinput_report_t report = {.rid = 0,
@@ -105,38 +57,13 @@ static void send_xinput_report(uint32_t btn) {
     report.rsize = 20;
 
     if (btn) {
-        report.digital_buttons_2 = 0x10;  // A button
+        report.digital_buttons_2 |= 0x10;  // A button
         xinput_send(&report);
 
         has_gamepad_key = true;
     } else {
         if (has_gamepad_key) xinput_send(&report);
         has_gamepad_key = false;
-    }
-}
-
-// Every 10ms, we will sent 1 report for each HID profile (keyboard, mouse etc
-// ..) tud_hid_report_complete_cb() is used to send the next report after
-// previous one is complete
-void hid_task(void) {
-    // Poll every 10ms
-    const uint32_t interval_ms = 10;
-    static uint32_t start_ms = 0;
-
-    if (board_millis() - start_ms < interval_ms) return;  // not enough time
-    start_ms += interval_ms;
-
-    uint32_t const btn = board_button_read();
-
-    if (tud_suspended() && btn) {
-        // Remote wakeup
-        tud_remote_wakeup();
-    } else {
-        if (input_mode == 1) {
-            send_xinput_report(btn);
-        } else {
-            send_hid_report(btn);
-        }
     }
 }
 
@@ -202,4 +129,35 @@ static usbd_class_driver_t const xinput_driver = {
 usbd_class_driver_t const *usbd_app_driver_get_cb(uint8_t *driver_count) {
     *driver_count = 1;
     return &xinput_driver;
+}
+
+void usb_task(controller_state_t *controler_state) {
+    // Poll every 10ms
+    const uint32_t interval_ms = 10;
+    static uint32_t start_ms = 0;
+
+    if (board_millis() - start_ms < interval_ms) return;  // not enough time
+    start_ms += interval_ms;
+
+    uint32_t const btn = board_button_read();
+
+    // remote wakeup
+    if (tud_suspended() && btn) {
+        tud_remote_wakeup();
+    }
+
+    // dont send report if usb not ready
+    if (!tud_ready()) {
+        return;
+    }
+
+    switch (input_mode) {
+        case D_INPUT:
+            send_hid_report(btn);
+            break;
+        default:
+        case X_INPUT:
+            send_xinput_report(btn);
+            break;
+    }
 }

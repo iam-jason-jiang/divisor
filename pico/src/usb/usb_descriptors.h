@@ -25,8 +25,12 @@
 #ifndef USB_DESCRIPTORS_H_
 #define USB_DESCRIPTORS_H_
 
-static const int input_mode = 1;
+extern int input_mode;
+
+enum { D_INPUT, X_INPUT };
 
 enum { REPORT_ID_GAMEPAD, REPORT_ID_COUNT };
+
+void send_hid_report(int btn);
 
 #endif /* USB_DESCRIPTORS_H_ */
