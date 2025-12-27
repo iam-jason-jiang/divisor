@@ -1,77 +1,66 @@
 #include "gamepad.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "bsp/board_api.h"
-#include "device/usbd_pvt.h"
-#include "led.h"
-#include "tusb.h"
-#include "usb_callbacks.h"
-#include "usb_descriptors.h"
 
-static bool active_input_in_last_cycle = false;
+#define BTN_A_PIN 1
+#define BTN_B_PIN 2
+#define BTN_X_PIN 3
+#define BTN_Y_PIN 4
+#define UP_PIN 5
+#define DOWN_PIN 6
+#define LEFT_PIN 7
+#define RIGHT_PING 8
 
-// TODO: EXPERIMENTAL VALUE
-#define ANALOG_DEAD_ZONE 200
+void gamepad_init_hw(void) {
+    // 1. Initialize the pins
+    gpio_init(BTN_A_PIN);
+    gpio_init(BTN_B_PIN);
+    gpio_init(BTN_X_PIN);
+    gpio_init(BTN_Y_PIN);
+    gpio_init(UP_PIN);
+    gpio_init(DOWN_PIN);
+    gpio_init(LEFT_PIN);
+    gpio_init(RIGHT_PING);
 
-static bool is_any_input_active(controller_state_t const *state) {
-    if (state->button1 || state->button2 || state->button3 || state->button4 ||
-        state->button5 || state->button6 || state->button7 || state->button8) {
-        return true;
-    }
+    // 2. Set as input
+    gpio_set_dif(BTN_A_PIN);
+    gpio_set_dif(BTN_B_PIN);
+    gpio_set_dif(BTN_X_PIN);
+    gpio_set_dif(BTN_Y_PIN);
+    gpio_set_dif(UP_PIN);
+    gpio_set_dif(DOWN_PIN);
+    gpio_set_dif(LEFT_PIN);
+    gpio_set_dif(RIGHT_PING);
 
-    int ldx = (int)state->left_stick_x - 2048;
-    int ldy = (int)state->left_stick_y - 2048;
-    if (ldx * ldx + ldy * ldy > ANALOG_DEAD_ZONE) {
-        return true;
-    }
-
-    int rdx = (int)state->right_stick_x - 2048;
-    int rdy = (int)state->right_stick_y - 2048;
-    if (rdx * rdx + rdy * rdy > ANALOG_DEAD_ZONE) {
-        return true;
-    }
-
-    return false;
+    // 3. all pins are pulled up
+    gpio_pull_up(BTN_A_PIN);
+    gpio_pull_up(BTN_B_PIN);
+    gpio_pull_up(BTN_X_PIN);
+    gpio_pull_up(BTN_Y_PIN);
+    gpio_pull_up(UP_PIN);
+    gpio_pull_up(DOWN_PIN);
+    gpio_pull_up(LEFT_PIN);
+    gpio_pull_up(RIGHT_PING);
 }
 
-void usb_task(controller_state_t *controller_state) {
-    // Poll every 10ms
-    const uint32_t interval_ms = 10;
-    static uint32_t start_ms = 0;
+void poll_right_inputs(controller_state_t *controller_state) {
+    uint32_t const btn = board_button_read();
 
-    if (board_millis() - start_ms < interval_ms) return;  // not enough time
-    start_ms += interval_ms;
+    // TEMP center joysticks
+    controller_state->right_stick_x = 2048;
+    controller_state->right_stick_y = 2048;
 
-    bool input_is_active = is_any_input_active(controller_state);
+    controller_state->button_a = (btn) ? 1 : 0;
+    controller_state->right_stick_x = (btn) ? 4095 : 2048;
+}
 
-    // avoid sending multiple consecutive zero reports
-    if (!input_is_active && !active_input_in_last_cycle) {
-        return;
-    }
+void poll_left_inputs(controller_state_t *controller_state) {
+    uint32_t const btn = board_button_read();
 
-    // remote wakeup
-    if (tud_suspended() && input_is_active) {
-        tud_remote_wakeup();
-    }
+    // TEMP center joysticks
+    controller_state->left_stick_x = 2048;
+    controller_state->left_stick_y = 2048;
 
-    // dont send report if usb not ready
-    if (!tud_ready()) {
-        return;
-    }
-
-    switch (input_mode) {
-        case D_INPUT:
-            send_hid_report(controller_state);
-            break;
-        default:
-        case X_INPUT:
-            send_xinput_report(controller_state);
-            break;
-    }
-
-    // Update the state for the next cycle
-    active_input_in_last_cycle = input_is_active;
+    controller_state->dpad_right = (btn) ? 1 : 0;
+    controller_state->left_stick_x = (btn) ? 4095 : 2048;
 }

@@ -33,6 +33,8 @@ enum { D_INPUT, X_INPUT };
 
 enum { REPORT_ID_GAMEPAD, REPORT_ID_COUNT };
 
+void usb_task(controller_state_t *controller_state);
+
 void send_hid_report(controller_state_t const *state);
 void send_xinput_report(controller_state_t const *state);
 

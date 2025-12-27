@@ -47,6 +47,7 @@ set(PROJECT_SOURCES
     src/led/led.c
     src/usb/dinput.c
     src/usb/xinput.c
+    src/usb/usb_handler.c
 )
 
 target_sources(divisor PUBLIC

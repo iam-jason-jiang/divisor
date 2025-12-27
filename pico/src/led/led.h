@@ -14,7 +14,7 @@ enum {
     BLINK_SUSPENDED = 2500,
 };
 
-static uint32_t blink_interval_ms = BLINK_NOT_MOUNTED;
+extern uint32_t blink_interval_ms;
 
 int pico_led_init(void);
 void led_blinking_task(void);

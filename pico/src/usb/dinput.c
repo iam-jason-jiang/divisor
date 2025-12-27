@@ -56,12 +56,12 @@ void send_hid_report(controller_state_t const *state) {
         .rz = state->right_stick_y >> 4,
         .rx = 0,
         .ry = 0,
-        .hat = convert_dpad_to_hat(state->button5, state->button6,
-                                   state->button7, state->button8),
-        .buttons = (state->button1 ? GAMEPAD_BUTTON_A : 0) |  // A
-                   (state->button2 ? GAMEPAD_BUTTON_B : 0) |  // B
-                   (state->button3 ? GAMEPAD_BUTTON_X : 0) |  // X
-                   (state->button4 ? GAMEPAD_BUTTON_Y : 0),   // Y
+        .hat = convert_dpad_to_hat(state->dpad_up, state->dpad_down,
+                                   state->dpad_left, state->dpad_right),
+        .buttons = (state->button_a ? GAMEPAD_BUTTON_A : 0) |
+                   (state->button_b ? GAMEPAD_BUTTON_B : 0) |
+                   (state->button_x ? GAMEPAD_BUTTON_X : 0) |
+                   (state->button_y ? GAMEPAD_BUTTON_Y : 0),
     };
 
     tud_hid_report(REPORT_ID_GAMEPAD, &report, sizeof(report));

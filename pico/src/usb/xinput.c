@@ -44,20 +44,21 @@ void send_xinput_report(controller_state_t const *state) {
     xinput_report_t report = {
         .rid = 0,
         .rsize = 20,
-        .digital_buttons_1 = (state->button5 ? 0x01 : 0) |  //
-                             (state->button6 ? 0x02 : 0) |  //
-                             (state->button7 ? 0x04 : 0) |  //
-                             (state->button8 ? 0x08 : 0),   //
-        .digital_buttons_2 = (state->button1 ? 0x10 : 0) |  // A
-                             (state->button2 ? 0x20 : 0) |  // B
-                             (state->button3 ? 0x40 : 0) |  // X
-                             (state->button4 ? 0x80 : 0),   // Y
+        .digital_buttons_1 = (state->dpad_up ? 0x01 : 0) |    // up
+                             (state->dpad_down ? 0x02 : 0) |  // down
+                             (state->dpad_left ? 0x04 : 0) |  // left
+                             (state->dpad_right ? 0x08 : 0),  // right
+        .digital_buttons_2 = (state->button_a ? 0x10 : 0) |   // A
+                             (state->button_b ? 0x20 : 0) |   // B
+                             (state->button_x ? 0x40 : 0) |   // X
+                             (state->button_y ? 0x80 : 0),    // Y
         .lt = 0,
         .rt = 0,
-        .l_x = ((int16_t) state->left_stick_x - 2048) * 16,
-        .l_y = ((int16_t) state->left_stick_y - 2048) * 16,
-        .r_x = ((int16_t) state->right_stick_x - 2048) * 16,
-        .r_y = ((int16_t) state->right_stick_y - 2048) * 16,
+        // normalize to 16 bit
+        .l_x = ((int16_t)state->left_stick_x - 2048) * 16,
+        .l_y = ((int16_t)state->left_stick_y - 2048) * 16,
+        .r_x = ((int16_t)state->right_stick_x - 2048) * 16,
+        .r_y = ((int16_t)state->right_stick_y - 2048) * 16,
         .reserved_1 = {0}};
 
     xinput_send(&report);
