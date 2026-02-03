@@ -70,6 +70,7 @@ target_link_libraries(divisor PUBLIC
     pico_unique_id
     tinyusb_device
     tinyusb_board
+    hardware_adc
 )
 
 if (PICO_CYW43_SUPPORTED)

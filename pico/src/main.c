@@ -40,8 +40,6 @@ uint32_t blink_interval_ms = BLINK_NOT_MOUNTED;
 // set default input mode to XInput
 int input_mode = X_INPUT;
 
-controller_state_t controller_state = {0};
-
 void update_left(system_context_t *ctx) {
     poll_left_inputs(&ctx->gamepad);
 
@@ -55,6 +53,8 @@ void update_right(system_context_t *ctx) {
     poll_right_inputs(&ctx->gamepad);
     // TODO: receive data from left side UART
 
+    // TODO: debounce inputs
+    // TODO: joystick dedzone
     usb_task(&ctx->gamepad);
 }
 
@@ -63,6 +63,8 @@ int main(void) {
 
     board_init();
     pico_led_init();
+
+    // gamepad_init_hw();
 
     const uint32_t LOCK_TIMEOUT_MS = 500;
     uint32_t start_time = to_ms_since_boot(get_absolute_time());
@@ -78,6 +80,7 @@ int main(void) {
     void (*update_task)(system_context_t *) = update_left;
 
     // wait for usb device
+    // if connection is found, update to right side device
     while (to_ms_since_boot(get_absolute_time()) - start_time <
            LOCK_TIMEOUT_MS) {
         tud_task();
@@ -86,6 +89,8 @@ int main(void) {
             break;
         }
     }
+
+    // TODO: callebrate joysticks
 
     while (1) {
         update_task(&ctx);

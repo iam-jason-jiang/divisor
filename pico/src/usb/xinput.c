@@ -54,11 +54,10 @@ void send_xinput_report(controller_state_t const *state) {
                              (state->button_y ? 0x80 : 0),    // Y
         .lt = 0,
         .rt = 0,
-        // normalize to 16 bit
-        .l_x = ((int16_t)state->left_stick_x - 2048) * 16,
-        .l_y = ((int16_t)state->left_stick_y - 2048) * 16,
-        .r_x = ((int16_t)state->right_stick_x - 2048) * 16,
-        .r_y = ((int16_t)state->right_stick_y - 2048) * 16,
+        .l_x = state->left_stick_x,
+        .l_y = state->left_stick_y,
+        .r_x = state->right_stick_x,
+        .r_y = state->right_stick_y,
         .reserved_1 = {0}};
 
     xinput_send(&report);

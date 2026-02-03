@@ -15,14 +15,14 @@ typedef struct {
     bool dpad_left;
     bool dpad_right;
     
-    // 12-bit precision
-    uint16_t left_stick_x;
-    uint16_t left_stick_y;
+    int16_t left_stick_x;
+    int16_t left_stick_y;
 
-    uint16_t right_stick_x;
-    uint16_t right_stick_y;
+    int16_t right_stick_x;
+    int16_t right_stick_y;
 } controller_state_t;
 
+void gamepad_init_hw(void);
 void poll_right_inputs(controller_state_t *controller_state);
 void poll_left_inputs(controller_state_t *controller_state);
 

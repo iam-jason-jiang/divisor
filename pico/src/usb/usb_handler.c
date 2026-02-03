@@ -17,24 +17,22 @@ static bool active_input_in_last_cycle = false;
 #define ANALOG_DEAD_ZONE 200
 
 static bool is_any_input_active(controller_state_t const *state) {
-    if (state->button_a || state->button_b || state->button_x || state->button_y ||
-        state->dpad_up || state->dpad_down || state->dpad_left || state->dpad_right) {
-        return true;
-    }
+    return (state->button_a || state->button_b || state->button_x || state->button_y ||
+        state->dpad_up || state->dpad_down || state->dpad_left || state->dpad_right ||
+        state->left_stick_x != 0 || state->left_stick_y != 0 ||
+        state->right_stick_x != 0 || state->right_stick_y != 0);
 
-    int ldx = (int)state->left_stick_x - 2048;
-    int ldy = (int)state->left_stick_y - 2048;
-    if (ldx * ldx + ldy * ldy > ANALOG_DEAD_ZONE) {
-        return true;
-    }
+    // int ldx = (int)state->left_stick_x - 2048;
+    // int ldy = (int)state->left_stick_y - 2048;
+    // if (ldx * ldx + ldy * ldy > ANALOG_DEAD_ZONE) {
+    //     return true;
+    // }
 
-    int rdx = (int)state->right_stick_x - 2048;
-    int rdy = (int)state->right_stick_y - 2048;
-    if (rdx * rdx + rdy * rdy > ANALOG_DEAD_ZONE) {
-        return true;
-    }
-
-    return false;
+    // int rdx = (int)state->right_stick_x - 2048;
+    // int rdy = (int)state->right_stick_y - 2048;
+    // if (rdx * rdx + rdy * rdy > ANALOG_DEAD_ZONE) {
+    //     return true;
+    // }
 }
 
 void usb_task(controller_state_t *controller_state) {

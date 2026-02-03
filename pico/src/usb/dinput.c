@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 #include "bsp/board_api.h"
 #include "device/usbd_pvt.h"
@@ -48,12 +49,18 @@ uint8_t convert_dpad_to_hat(bool up, bool down, bool left, bool right) {
     }
 }
 
+static inline uint8_t scale_int16_to_uint8(int16_t val) {
+    const int32_t offset = 32768;
+    return (uint8_t)(((uint32_t)((int32_t)val + offset)) >> 8);
+}
+
 void send_hid_report(controller_state_t const *state) {
     hid_gamepad_report_t report = {
-        .x = state->left_stick_x >> 4,
-        .y = state->left_stick_y >> 4,
-        .z = state->right_stick_x >> 4,
-        .rz = state->right_stick_y >> 4,
+        // normalize int16 to uint8
+        .x = scale_int16_to_uint8(state->left_stick_x),
+        .y = scale_int16_to_uint8(state->left_stick_y),
+        .z = scale_int16_to_uint8(state->right_stick_x),
+        .rz = scale_int16_to_uint8(state->right_stick_y),
         .rx = 0,
         .ry = 0,
         .hat = convert_dpad_to_hat(state->dpad_up, state->dpad_down,
