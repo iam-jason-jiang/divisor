@@ -1,13 +1,8 @@
-# Generated Cmake Pico project file
-
 cmake_minimum_required(VERSION 3.13)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-# Initialise pico_sdk from installed location
-# (note this can come from environment, CMake cache etc)
 
 # == DO NOT EDIT THE FOLLOWING LINES for the Raspberry Pi Pico VS Code Extension to work ==
 if(WIN32)
@@ -23,21 +18,17 @@ if (EXISTS ${picoVscode})
     include(${picoVscode})
 endif()
 # ====================================================================================
+
 set(PICO_BOARD pico_w CACHE STRING "Board type")
 
 # Pull in Raspberry Pi Pico SDK (must be before project)
+set(PICO_SDK_FETCH_FROM_GIT ON)
 include(pico_sdk_import.cmake)
 
 project(divisor C CXX ASM)
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
-
-# Add executable. Default name is the project name, version 0.1
-
-cmake_minimum_required(VERSION 3.13)
-
-add_executable(divisor)
 
 set(PROJECT_SOURCES
     src/main.c
@@ -47,23 +38,22 @@ set(PROJECT_SOURCES
     src/led/led.c
     src/usb/dinput.c
     src/usb/xinput.c
+    src/gamepad/debounce.c
 )
 
-target_sources(divisor PUBLIC
-        ${PROJECT_SOURCES}
-        )
+add_executable(divisor
+    ${PROJECT_SOURCES}
+)
 
-# Make sure TinyUSB can find tusb_config.h
+# Make sure TinyUSB can find tusb_config.h + your headers
 target_include_directories(divisor PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR}
-        ${CMAKE_CURRENT_LIST_DIR}/src
-        ${CMAKE_CURRENT_LIST_DIR}/src/gamepad
-        ${CMAKE_CURRENT_LIST_DIR}/src/usb
-        ${CMAKE_CURRENT_LIST_DIR}/src/led
-        )
+    ${CMAKE_CURRENT_LIST_DIR}
+    ${CMAKE_CURRENT_LIST_DIR}/src
+    ${CMAKE_CURRENT_LIST_DIR}/src/gamepad
+    ${CMAKE_CURRENT_LIST_DIR}/src/usb
+    ${CMAKE_CURRENT_LIST_DIR}/src/led
+)
 
-# In addition to pico_stdlib required for common PicoSDK functionality, add dependency on tinyusb_device
-# for TinyUSB device support and tinyusb_board for the additional board support library used by the example
 target_link_libraries(divisor PUBLIC
     pico_stdlib
     pico_unique_id
@@ -75,9 +65,4 @@ if (PICO_CYW43_SUPPORTED)
     target_link_libraries(divisor PUBLIC pico_cyw43_arch_none)
 endif()
 
-# Uncomment this line to enable fix for Errata RP2040-E5 (the fix requires use of GPIO 15)
-#target_compile_definitions(divisor PUBLIC PICO_RP2040_USB_DEVICE_ENUMERATION_FIX=1)
-
 pico_add_extra_outputs(divisor)
-
-# add url via pico_set_program_url
