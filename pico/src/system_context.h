@@ -1,6 +1,8 @@
 #ifndef SYSTEM_CONTEXT_H
 #define SYSTEM_CONTEXT_H
 
+#include "gamepad.h"
+
 typedef struct {
     controller_state_t gamepad;
 

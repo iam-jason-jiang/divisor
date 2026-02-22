@@ -38,7 +38,7 @@ target_sources(divisor PRIVATE
     src/usb/usb_handler.c
 )
 
-target_include_directories(divisor PUBLIC
+target_include_directories(divisor PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
     ${CMAKE_CURRENT_LIST_DIR}/src
     ${CMAKE_CURRENT_LIST_DIR}/src/gamepad
@@ -46,16 +46,17 @@ target_include_directories(divisor PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/src/led
 )
 
-target_link_libraries(divisor PUBLIC
+target_link_libraries(divisor
     pico_stdlib
     pico_unique_id
     tinyusb_device
     tinyusb_board
     hardware_adc
+    pico_cyw43_arch_none
 )
 
 if (PICO_CYW43_SUPPORTED)
-    target_link_libraries(divisor PUBLIC pico_cyw43_arch_none)
+    target_link_libraries(divisor pico_cyw43_arch_none)
 endif()
 
 pico_add_extra_outputs(divisor)

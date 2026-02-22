@@ -6,27 +6,25 @@
 #include "bsp/board_api.h"
 #include "pico/stdlib.h"
 
-#if PICO_CYW43_SUPPORT
+#ifdef CYW43_WL_GPIO_LED_PIN
 #include "pico/cyw43_arch.h"
 #endif
 
 int pico_led_init(void) {
-#if PICO_CYW43_SUPPORT
-    if (cyw43_arch_init() != PICO_OK) {
-        return PICO_ERROR_GENERIC;
-    }
-#elif defined(PICO_DEFAULT_LED_PIN)
+#if defined(PICO_DEFAULT_LED_PIN)
     gpio_init(PICO_DEFAULT_LED_PIN);
     gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
-#endif
     return PICO_OK;
+#elif defined(CYW43_WL_GPIO_LED_PIN)
+    return cyw43_arch_init();
+#endif
 }
 
 void pico_set_led(bool led_on) {
-#if PICO_CYW43_SUPPORT
-    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, led_on);
-#elif defined(PICO_DEFAULT_LED_PIN)
+#if defined(PICO_DEFAULT_LED_PIN)
     gpio_put(PICO_DEFAULT_LED_PIN, led_on);
+#elif defined(CYW43_WL_GPIO_LED_PIN)
+    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, led_on);
 #endif
 }
 
