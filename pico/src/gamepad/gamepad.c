@@ -41,9 +41,9 @@ void gamepad_init_hw(void) {
     }
 
     // ADC
-    adc_init();
-    adc_gpio_init(PIN_JOYSTICK_X);
-    adc_gpio_init(PIN_JOYSTICK_Y);
+    // adc_init();
+    // adc_gpio_init(PIN_JOYSTICK_X);
+    // adc_gpio_init(PIN_JOYSTICK_Y);
 }
 
 int16_t read_joystick(uint8_t channel) {
@@ -80,10 +80,10 @@ void poll_right_inputs(controller_state_t *controller_state) {
 
     // potentially sample ADC multiple times
     // with read_joystick()
-    adc_select_input(0);
-    controller_state->right_stick_x = adc_read();
-    adc_select_input(1);
-    controller_state->right_stick_y = adc_read();
+    // adc_select_input(0);
+    // controller_state->right_stick_x = adc_read();
+    // adc_select_input(1);
+    // controller_state->right_stick_y = adc_read();
 }
 
 void poll_left_inputs(controller_state_t *controller_state) {
