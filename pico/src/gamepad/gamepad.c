@@ -23,7 +23,8 @@ static const uint8_t BUTTON_PINS[] = {
     2,  // A / UP
     3,  // B / DOWN
     4,  // X / LEFT
-    5   // Y / RIGHT
+    5,  // Y / RIGHT
+
 };
 static const size_t NUM_BUTTONS = sizeof(BUTTON_PINS) / sizeof(BUTTON_PINS[0]);
 
@@ -41,8 +42,8 @@ void gamepad_init_hw(void) {
     }
 
     // ADC
-    // adc_init();
-    // adc_gpio_init(PIN_JOYSTICK_X);
+    adc_init();
+    adc_gpio_init(PIN_JOYSTICK_X);
     // adc_gpio_init(PIN_JOYSTICK_Y);
 }
 
@@ -78,10 +79,14 @@ void poll_right_inputs(controller_state_t *controller_state) {
     controller_state->button_x = !gpio_get(BUTTON_PINS[BTN_INDEX_X]);
     controller_state->button_y = !gpio_get(BUTTON_PINS[BTN_INDEX_Y]);
 
+    // controller_state->button_y = !gpio_get(BUTTON_PINS[BTN_INDEX_Y]);
+
     // potentially sample ADC multiple times
     // with read_joystick()
-    // adc_select_input(0);
-    // controller_state->right_stick_x = adc_read();
+    adc_select_input(0);
+    // int16_t input = adc_read() << 4;
+    // controller_state->right_stick_x = 2000;
+    controller_state->right_stick_x = ((adc_read()) << 4) - (1 << 15);
     // adc_select_input(1);
     // controller_state->right_stick_y = adc_read();
 }
